@@ -76,7 +76,7 @@ class Drop:
             "|||||||||||",
             "^-|^-|^-|^",
             "<><><><><>"
-        ]        
+        ]
 
         letters = f"{self.letters}{rm.choice(random_text_tails)}"
         font = pg.font.SysFont(font_type, self.size)
