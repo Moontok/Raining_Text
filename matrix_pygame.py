@@ -10,9 +10,9 @@ def main():
     font_color = (0, 255, 255)
     speed = 40
 
-    screen = pg.display.set_mode((width, height))
-    display_surface = pg.Surface((width, height))
-    display_surface.set_alpha(10)
+    main_screen: pg.Surface = pg.display.set_mode((width, height))
+    alpha_cover = pg.Surface((width, height))
+    alpha_cover.set_alpha(10)
 
     clock = pg.time.Clock()
 
@@ -23,15 +23,15 @@ def main():
         drops.append(drop)
 
     while True:
-        screen.blit(display_surface, (0, 0))
-        display_surface.fill(pg.Color("black"))
+        main_screen.blit(alpha_cover, (0, 0))
+        alpha_cover.fill(pg.Color("black"))
 
         for drop in drops:
             if drop.is_alive():
                 drop.increment_y()
             else:
                 drop.respawn()
-            drop.draw(screen)            
+            drop.draw(main_screen)            
 
         pg.time.delay(speed)
 
@@ -77,25 +77,42 @@ class Drop:
         return rendered_letters
 
     def increment_y(self) -> None:
+        """Increments the drop towards the bottom of the screen and
+        decrements the remaining life of the drop.
+        """
+
         self.y += self.size
         self.life_remaining -= 1
 
+
     def is_alive(self) -> bool:
+        """Return True if the drop should still be rendered. """
+
         return self.life_remaining > 0 and self.y < self.screen_height
     
-    def get_next_letter(self) -> str:
+
+    def get_next_rendered_letter(self) -> str:
+        """Return the next rendred letter to display by the drop."""
+
         letter = self.rendered_letters[self.letter_count % len(self.rendered_letters)]
         self.letter_count += 1
         
         return letter  
         
-    def draw(self, screen):        
-        screen.blit(self.get_next_letter(), (self.x, self.y))
+
+    def draw(self, screen: pg.Surface) -> None:
+        """Draw the rendered letter to the main screen.""" 
+
+        screen.blit(self.get_next_rendered_letter(), (self.x, self.y))
+
 
     def respawn(self) -> None:
+        """Respawns the drop to a new vertical location, size, and life remaining."""
+
         self.rendered_letters = self.generate_rendered_letters()
         self.y = randint(0, self.screen_height + 1)
         self.life_remaining = randrange(len(self.rendered_letters), self.screen_height, self.size)
+
 
 if __name__ == "__main__":
     main()
