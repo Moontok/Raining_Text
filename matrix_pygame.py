@@ -1,20 +1,20 @@
-import pygame
-import random
+import pygame as pg
+from random import randint, choice, randrange
 
 def main():
-    pygame.init()
+    pg.init()
 
     width, height = 1920, 1080
     chars = "CSforAR"
     base_font_size = 50
     font_color = (0, 255, 255)
-    speed = 1
+    speed = 40
 
-    screen = pygame.display.set_mode((width, height))
-    display_surface = pygame.Surface((width, height))
+    screen = pg.display.set_mode((width, height))
+    display_surface = pg.Surface((width, height))
     display_surface.set_alpha(10)
 
-    clock = pygame.time.Clock()
+    clock = pg.time.Clock()
 
     drops = list()
 
@@ -24,7 +24,7 @@ def main():
 
     while True:
         screen.blit(display_surface, (0, 0))
-        display_surface.fill(pygame.Color('black'))
+        display_surface.fill(pg.Color("black"))
 
         for drop in drops:
             if drop.is_alive():
@@ -33,37 +33,35 @@ def main():
                 drop.respawn()
             drop.draw(screen)            
 
-        pygame.time.delay(speed)
+        pg.time.delay(speed)
 
-        pygame.display.update()
+        pg.display.update()
 
         clock.tick(60)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
                 exit()
 
 
 class Drop:
     def __init__(self, x, y, letters, font_size, font_color):
-        self.font_size = font_size
-        self.size = font_size
+        self.size = randint(1, font_size + 1)
         self.font_color = font_color
         self.letters = letters
         self.rendered_letters = self.generate_letters()
-        self.letter_count = random.randint(0, len(letters))
+        self.letter_count = randint(0, len(letters))
         self.x = x
-        self.y = random.randrange(0, y + 1, font_size)
+        self.y = randrange(0, y + 1, font_size)
         self.screen_height = y
-        self.life_remaining = random.randrange(len(letters), y, font_size)
+        self.life_remaining = randrange(len(letters), y, font_size)
 
     def generate_letters(self) -> list:
         random_char = ["/\/\/\/\/\/", "()()()()()(", "|||||||||||"]
-        letters = f"{self.letters}{random.choice(random_char)}"
-        self.size = random.randint(1, self.font_size + 1)
-        font = pygame.font.SysFont('Console', self.size)
+        letters = f"{self.letters}{choice(random_char)}"
+        font = pg.font.SysFont("Console", self.size)
         font.set_bold(True)
-        # self.font_color = (random.randint(0,255), random.randint(0,255), random.randint(0,125))
+        self.font_color = (randint(0, 255), randint(0, 255), randint(0, 255))
         rendered_letters = list()
         for letter in letters:
             rendered_letters.append(font.render(letter, True, self.font_color))
@@ -71,7 +69,6 @@ class Drop:
 
     def increment_y(self) -> None:
         self.y += self.size
-        # self.y += self.font_size
         self.life_remaining -= 1
 
     def is_alive(self) -> bool:
@@ -88,8 +85,8 @@ class Drop:
 
     def respawn(self) -> None:
         self.rendered_letters = self.generate_letters()
-        self.y = random.randint(0, self.screen_height + 1)
-        self.life_remaining = random.randrange(len(self.rendered_letters), self.screen_height, self.font_size)
+        self.y = randint(0, self.screen_height + 1)
+        self.life_remaining = randrange(len(self.rendered_letters), self.screen_height, self.size)
 
 if __name__ == "__main__":
     main()
