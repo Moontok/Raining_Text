@@ -23,13 +23,12 @@ def main():
 
     # Create a Drop for each column (x) on the screen.
     # Columns are determined by base font size and screen width
-    for x in range(0, width, base_font_size):
+    for x in range(0, width, base_font_size - base_font_size // 2):
         drop = Drop(x, height, chars, base_font_size, font_color)
         drops.append(drop)
 
     while True:
         main_screen.blit(alpha_cover, (0, 0))
-        alpha_cover.fill(bg_color)
 
         for drop in drops:
             if drop.is_alive():
@@ -55,33 +54,38 @@ class Drop:
     def __init__(self, x: int, y: int, letters: str, font_size: int, font_color: tuple):
         self.base_size = font_size
         self.size = rm.randint(1, font_size)
+        self.step = rm.randint(1, font_size) // 3 + 1
         self.font_color = font_color
         self.letters = letters
         self.rendered_letters = self.generate_rendered_letters()
         self.letter_count = rm.randint(0, len(letters))
         self.x = x
-        self.y = rm.randrange(0, y + 1, font_size)
+        self.y = rm.randrange(0, y + 1)
         self.screen_height = y
         self.life_remaining = rm.randrange(len(letters), y, font_size)
 
     def generate_rendered_letters(self) -> list[pg.Surface]:
         """Create a list of the rendered letters to a Surface and return them."""
         
-        font_types = ["Console", "Arial", "Wingding"]        
-        font_type = rm.choice(font_types)
+        # font_types = ["Console", "Arial", "Wingding"]    
+        # font_type = rm.choice(font_types)
+        # font = pg.font.SysFont(font_type, self.size)
+        # font.set_bold(True)
+        font = pg.font.Font("fonts\NotoSansJP-Regular.ttf", self.size)
+        # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255)) 
 
         random_text_tails = [
-            "/\/\/\/\/\/", 
-            "()()()()()(", 
-            "|||||||||||",
-            "^-|^-|^-|^",
-            "<><><><><>"
+            # "/\/\/\/\/\/", 
+            # "()()()()()(", 
+            # "|||||||||||",
+            # "^-|^-|^-|^-",
+            # "<><><><><><",
+            # "+|+|+|+|+|+",
+            "諸国間友好関係発展を促進"
         ]
+        letter = [rm.choice(self.letters) for _ in range(10)]
 
         letters = f"{self.letters}{rm.choice(random_text_tails)}"
-        font = pg.font.SysFont(font_type, self.size)
-        font.set_bold(True)
-        # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255))
 
         rendered_letters: list[pg.Surface] = list()
         for letter in letters:
@@ -94,7 +98,7 @@ class Drop:
         decrements the remaining life of the drop.
         """
 
-        self.y += self.size
+        self.y += self.step
         self.life_remaining -= 1
 
 
@@ -123,8 +127,9 @@ class Drop:
         """Respawns the drop to a new vertical location, size, and life remaining."""
         
         self.size = rm.randint(1, self.base_size)
-        self.rendered_letters: list[pg.Surface] = self.generate_rendered_letters()        
-        # self.size = rm.randint(1, self.base_size)
+        self.step = rm.randint(1, self.base_size) // 3 + 1
+
+        self.rendered_letters: list[pg.Surface] = self.generate_rendered_letters()
 
         self.y = rm.randint(0, self.screen_height + 1)
         self.life_remaining = rm.randrange(len(self.rendered_letters), self.screen_height, self.size)
