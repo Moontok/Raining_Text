@@ -21,6 +21,8 @@ def main():
 
     drops: list[Drop] = list()
 
+    # Create a Drop for each column (x) on the screen.
+    # Columns are determined by base font size and screen width
     for x in range(0, width, base_font_size):
         drop = Drop(x, height, chars, base_font_size, font_color)
         drops.append(drop)
@@ -51,7 +53,8 @@ class Drop:
     """Outlines a drop of text that falls down the screen."""
 
     def __init__(self, x: int, y: int, letters: str, font_size: int, font_color: tuple):
-        self.size = rm.randint(1, font_size + 1)
+        self.base_size = font_size
+        self.size = rm.randint(1, font_size)
         self.font_color = font_color
         self.letters = letters
         self.rendered_letters = self.generate_rendered_letters()
@@ -61,22 +64,29 @@ class Drop:
         self.screen_height = y
         self.life_remaining = rm.randrange(len(letters), y, font_size)
 
-    def generate_rendered_letters(self) -> list:
-        """Create the rendered letters and return them."""
+    def generate_rendered_letters(self) -> list[pg.Surface]:
+        """Create a list of the rendered letters to a Surface and return them."""
+        
+        font_types = ["Console", "Arial", "Wingding"]        
+        font_type = rm.choice(font_types)
 
         random_text_tails = [
             "/\/\/\/\/\/", 
             "()()()()()(", 
-            "|||||||||||"
-        ]
+            "|||||||||||",
+            "^-|^-|^-|^",
+            "<><><><><>"
+        ]        
 
         letters = f"{self.letters}{rm.choice(random_text_tails)}"
-        font = pg.font.SysFont("Console", self.size)
+        font = pg.font.SysFont(font_type, self.size)
         font.set_bold(True)
         # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255))
-        rendered_letters = list()
+
+        rendered_letters: list[pg.Surface] = list()
         for letter in letters:
             rendered_letters.append(font.render(letter, True, self.font_color))
+        
         return rendered_letters
 
     def increment_y(self) -> None:
@@ -94,25 +104,28 @@ class Drop:
         return self.life_remaining > 0 and self.y < self.screen_height
     
 
-    def get_next_rendered_letter(self) -> str:
-        """Return the next rendred letter to display by the drop."""
+    def get_next_rendered_letter(self) -> pg.Surface:
+        """Return the next rendred letter Surface to display by the drop."""
 
         letter = self.rendered_letters[self.letter_count % len(self.rendered_letters)]
         self.letter_count += 1
         
-        return letter  
+        return letter
         
 
     def draw(self, screen: pg.Surface) -> None:
-        """Draw the rendered letter to the main screen.""" 
+        """Draw the rendered letter Surface to the main screen.""" 
 
         screen.blit(self.get_next_rendered_letter(), (self.x, self.y))
 
 
     def respawn(self) -> None:
         """Respawns the drop to a new vertical location, size, and life remaining."""
+        
+        self.size = rm.randint(1, self.base_size)
+        self.rendered_letters: list[pg.Surface] = self.generate_rendered_letters()        
+        # self.size = rm.randint(1, self.base_size)
 
-        self.rendered_letters = self.generate_rendered_letters()
         self.y = rm.randint(0, self.screen_height + 1)
         self.life_remaining = rm.randrange(len(self.rendered_letters), self.screen_height, self.size)
 
