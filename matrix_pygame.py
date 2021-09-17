@@ -45,20 +45,29 @@ def main():
 
 
 class Drop:
+    """Outlines a drop of text that falls down the screen."""
+
     def __init__(self, x, y, letters, font_size, font_color):
         self.size = randint(1, font_size + 1)
         self.font_color = font_color
         self.letters = letters
-        self.rendered_letters = self.generate_letters()
+        self.rendered_letters = self.generate_rendered_letters()
         self.letter_count = randint(0, len(letters))
         self.x = x
         self.y = randrange(0, y + 1, font_size)
         self.screen_height = y
         self.life_remaining = randrange(len(letters), y, font_size)
 
-    def generate_letters(self) -> list:
-        random_char = ["/\/\/\/\/\/", "()()()()()(", "|||||||||||"]
-        letters = f"{self.letters}{choice(random_char)}"
+    def generate_rendered_letters(self) -> list:
+        """Create the rendered letters and return them."""
+
+        random_text_tails = [
+            "/\/\/\/\/\/", 
+            "()()()()()(", 
+            "|||||||||||"
+        ]
+
+        letters = f"{self.letters}{choice(random_text_tails)}"
         font = pg.font.SysFont("Console", self.size)
         font.set_bold(True)
         self.font_color = (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -84,7 +93,7 @@ class Drop:
         screen.blit(self.get_next_letter(), (self.x, self.y))
 
     def respawn(self) -> None:
-        self.rendered_letters = self.generate_letters()
+        self.rendered_letters = self.generate_rendered_letters()
         self.y = randint(0, self.screen_height + 1)
         self.life_remaining = randrange(len(self.rendered_letters), self.screen_height, self.size)
 
