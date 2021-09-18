@@ -67,10 +67,6 @@ class Drop:
     def generate_rendered_letters(self) -> list[pg.Surface]:
         """Create a list of the rendered letters to a Surface and return them."""
         
-        # font_types = ["Console", "Arial", "Wingding"]    
-        # font_type = rm.choice(font_types)
-        # font = pg.font.SysFont(font_type, self.size)
-        # font.set_bold(True)
         normal_font = pg.font.SysFont("Console", self.size)
         glyph_font = pg.font.Font("fonts\\alien_glyphs.ttf", self.size)
         # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255)) 
