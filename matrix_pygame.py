@@ -71,25 +71,30 @@ class Drop:
         # font_type = rm.choice(font_types)
         # font = pg.font.SysFont(font_type, self.size)
         # font.set_bold(True)
-        font = pg.font.Font("fonts\NotoSansJP-Regular.ttf", self.size)
+        normal_font = pg.font.SysFont("Console", self.size)
+        glyph_font = pg.font.Font("fonts\\alien_glyphs.ttf", self.size)
         # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255)) 
-
+        aslphabet: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         random_text_tails = [
-            # "/\/\/\/\/\/", 
-            # "()()()()()(", 
-            # "|||||||||||",
-            # "^-|^-|^-|^-",
-            # "<><><><><><",
-            # "+|+|+|+|+|+",
-            "諸国間友好関係発展を促進"
+            "/\/\/\/\/\/", 
+            "()()()()()(", 
+            "|||||||||||",
+            "^-|^-|^-|^-",
+            "<><><><><><",
+            "+|+|+|+|+|+"
         ]
         letter = [rm.choice(self.letters) for _ in range(10)]
 
         letters = f"{self.letters}{rm.choice(random_text_tails)}"
 
         rendered_letters: list[pg.Surface] = list()
-        for letter in letters:
-            rendered_letters.append(font.render(letter, True, self.font_color))
+
+        for letter in self.letters:
+            rendered_letters.append(normal_font.render(letter, True, self.font_color))
+        for _ in range(3, 8):
+            rendered_letters.append(glyph_font.render(rm.choice(aslphabet), True, self.font_color))
+        for letter in rm.choice(random_text_tails):
+            rendered_letters.append(normal_font.render(letter, True, self.font_color))
         
         return rendered_letters
 
