@@ -66,14 +66,14 @@ class Drop:
 
     def generate_rendered_letters(self) -> list[pg.Surface]:
         """Create a list of the rendered letters to a Surface and return them."""
-        
+
         normal_font = pg.font.SysFont("Console", self.size)
         glyph_font = pg.font.Font("fonts\\alien_glyphs.ttf", self.size)
         # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255)) 
         aslphabet: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         random_text_tails = [
-            "/\/\/\/\/\/", 
-            "()()()()()(", 
+            "/\/\/\/\/\/",
+            "()()()()()(",
             "|||||||||||",
             "^-|^-|^-|^-",
             "<><><><><><",
