@@ -9,6 +9,8 @@ def main():
     base_font_size = 50
     font_color = (0, 255, 255)
     bg_color = pg.Color("black")
+    color_change = False
+    step_change = False
     # Lower is faster
     speed = 40
 
@@ -24,7 +26,7 @@ def main():
     # Create a Drop for each column (x) on the screen.
     # Columns are determined by base font size and screen width
     for x in range(0, width, base_font_size - base_font_size // 2):
-        drop = Drop(x, height, chars, base_font_size, font_color)
+        drop = Drop(x, height, chars, base_font_size, font_color, step_change)
         drops.append(drop)
 
     while True:
@@ -35,6 +37,10 @@ def main():
                 drop.increment_y()
             else:
                 drop.respawn()
+                if color_change:
+                    drop.toggle_change_colors(True)
+                else:
+                    drop.toggle_change_colors(False)
             drop.draw(main_screen)            
 
         pg.time.delay(speed)
@@ -46,16 +52,20 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 exit()
+            if event.type == pg.KEYDOWN:
+                color_change = not color_change
+                
 
 
 class Drop:
     """Outlines a drop of text that falls down the screen."""
 
-    def __init__(self, x: int, y: int, letters: str, font_size: int, font_color: tuple):
+    def __init__(self, x: int, y: int, letters: str, font_size: int, font_color: tuple, step_change: bool):
         self.base_size = font_size
+        self.change_colors = False
         self.size = rm.randint(1, font_size)
-        self.step = rm.randint(1, font_size) // 3 + 1
         self.font_color = font_color
+        self.originial_font_color = font_color
         self.letters = letters
         self.rendered_letters = self.generate_rendered_letters()
         self.letter_count = rm.randint(0, len(letters))
@@ -64,12 +74,24 @@ class Drop:
         self.screen_height = y
         self.life_remaining = rm.randrange(len(letters), y, font_size)
 
+        self.step_change = step_change
+        if not step_change:
+            self.step = self.size
+        else:
+            self.step = rm.randint(1, self.size) // 3 + 1
+
     def generate_rendered_letters(self) -> list[pg.Surface]:
         """Create a list of the rendered letters to a Surface and return them."""
 
         normal_font = pg.font.SysFont("Console", self.size)
+        normal_font.set_bold(True)
         glyph_font = pg.font.Font("fonts\\alien_glyphs.ttf", self.size)
-        # self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255)) 
+        glyph_font.set_bold(True)
+
+        if self.change_colors:
+            self.font_color = (rm.randint(0, 255), rm.randint(0, 255), rm.randint(0, 255))
+        else:
+            self.font_color = self.originial_font_color
         aslphabet: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         random_text_tails = [
             "/\/\/\/\/\/",
@@ -81,17 +103,17 @@ class Drop:
         ]
         letter = [rm.choice(self.letters) for _ in range(10)]
 
-        letters = f"{self.letters}{rm.choice(random_text_tails)}"
-
         rendered_letters: list[pg.Surface] = list()
 
-        for letter in self.letters:
-            rendered_letters.append(normal_font.render(letter, True, self.font_color))
-        for _ in range(3, 8):
-            rendered_letters.append(glyph_font.render(rm.choice(aslphabet), True, self.font_color))
-        for letter in rm.choice(random_text_tails):
-            rendered_letters.append(normal_font.render(letter, True, self.font_color))
-        
+        if rm.randint(0, 1):
+            for letter in self.letters:
+                rendered_letters.append(normal_font.render(letter, True, self.font_color))            
+            for letter in rm.choice(random_text_tails):
+                rendered_letters.append(normal_font.render(letter, True, self.font_color))
+        else:
+            for _ in range(rm.randint(10, 30)):
+                rendered_letters.append(glyph_font.render(rm.choice(aslphabet), True, self.font_color))
+
         return rendered_letters
 
     def increment_y(self) -> None:
@@ -128,12 +150,24 @@ class Drop:
         """Respawns the drop to a new vertical location, size, and life remaining."""
         
         self.size = rm.randint(1, self.base_size)
-        self.step = rm.randint(1, self.base_size) // 3 + 1
+        
+        if not self.step_change:
+            self.step = self.size
+        else:
+            self.step = rm.randint(1, self.size) // 3 + 1
 
         self.rendered_letters: list[pg.Surface] = self.generate_rendered_letters()
 
         self.y = rm.randint(0, self.screen_height + 1)
         self.life_remaining = rm.randrange(len(self.rendered_letters), self.screen_height, self.size)
+
+    def toggle_change_colors(self, value: bool) -> None:
+        """Toggles the self.change_color bool values."""
+
+        self.change_colors = value
+
+    def is_changing_colors(self) -> bool:
+        return self.change_colors
 
 
 if __name__ == "__main__":
